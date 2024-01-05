@@ -4,7 +4,16 @@ from datetime import date, datetime
 
 class Field:
     def __init__(self, value):
+        self._value = None
         self.value = value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = value
 
     def __str__(self) -> str:
         return str(self.value)
@@ -12,28 +21,33 @@ class Field:
 
 class Name(Field):
     def __init__(self, value):
-        self.value = None
-        self.set_value(value)
-        super().__init__(self.value)
+        self._value = None
+        self.value = value
+        super().__init__(self._value)
 
-    def get_value(self):
+    @property
+    def value(self):
         return self.value
     
-    def set_value(self, value):
-        self.value = value
+    @Field.value.setter
+    def value(self, value):
+        self._value = value
+
 
 class Phone(Field):
     def __init__(self, value):
-        self.value = None
-        self.set_value(value)
-        super().__init__(self.value)
+        self._value = None
+        self.value = value
+        super().__init__(self._value)
+
+    @property
+    def value(self):
+        return self._value
     
-    def get_value(self):
-        return self.value
-    
-    def set_value(self, value):
-        if value.isdigit() and len(value) == 10:
-            self.value = value
+    @Field.value.setter
+    def value(self, phone):
+        if phone.isdigit() and len(phone) == 10:
+            self._value = phone
         else:
             raise ValueError
 
@@ -44,23 +58,24 @@ class Phone(Field):
 
 class Birthday(Field):
     def __init__(self, value):
-        if value == None: 
-            super().__init__(value)
-        else:
-            self.value = None
-            self.set_value(value)
-            super().__init__(self.value)
+        self._value = None
+        self.value = value
+        super().__init__(self._value)
 
-    def get_value(self):
-        return self.value
+    @property
+    def value(self):
+        return self._value
     
-    def set_value(self, value):
-        try:
-            strptime(value, '%d-%m-%Y')
-            self.value = value
-        except ValueError:
-            raise ValueError
-
+    @Field.value.setter
+    def value(self, value):
+        if value == None:
+            self._value = None
+        else:
+            try:
+                strptime(value, '%d-%m-%Y')
+                self._value = value
+            except ValueError:
+                raise ValueError
 
 class Record():
     def __init__(self, name, date=None):
@@ -84,8 +99,8 @@ class Record():
             return f"Birthday data is misssing."
 
     def edit_phone(self, phone, phone_new):
-        phone_obj = self.find_phone(phone)
-        # phone_obj: Phone = self.find_phone(phone)
+        # phone_obj = self.find_phone(phone)
+        phone_obj: Phone = self.find_phone(phone)
         if phone_obj and phone_obj.validate(phone_new):
             phone_obj.value = phone_new
         else:
@@ -145,16 +160,16 @@ def main():
     john_record.add_phone("0962455835")
     john_record.add_phone("7777777777")
 
-    count = john_record.days_to_birthday()
-    print(count)
+    count_days_to_birthday = john_record.days_to_birthday()
+    print(count_days_to_birthday)
 
     abook.add_record(john_record)
 
     jane_record = Record("Jane")
     jane_record.add_phone("9876543210")
     abook.add_record(jane_record)
-    count = jane_record.days_to_birthday()
-    print(count)
+    count_days_to_birthday = jane_record.days_to_birthday()
+    print(count_days_to_birthday)
 
     bill_record = Record("Bill", "11-02-2005")
     bill_record.add_phone("0502455835")
